@@ -5,7 +5,7 @@
 - [Problem](#problem)
 - [Entity Relationship Diagram](#entity-relationship-diagram)
 - [Case Study Questions](#case-study-questions)
-- [Solution on Github](https://github.com/sahmed008/Case-Study-1---Danny-s-Diner/blob/main/solution.md)
+- [Solution on Github](https://github.com/sahmed008/Marketing-Analytics/new/main)
 
 ***
 
