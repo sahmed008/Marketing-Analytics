@@ -1,31 +1,38 @@
 # 🍜 Case Study Marketing Analytics
 
-## Solution
+## Data Exploration
 
-### 1. What is the total amount each customer spent at the restaurant?
-
-````sql
-SELECT 
-s.customer_id, 
-SUM(m.price) AS price
-FROM dannys_diner.sales s
-INNER JOIN dannys_diner.menu m
-ON s.product_id = m.product_id
-GROUP BY s.customer_id
-ORDER BY price DESC;
-````
-![image](https://user-images.githubusercontent.com/104872221/170370018-14cda9a2-0c90-4de0-8d4c-9d6547e270d4.png)
-
-### 2. How many days has each customer visited the restaurant?
+### Join Column Analysis Example 1
 
 ````sql
-SELECT 
-	customer_id, COUNT(DISTINCT order_date) AS customer_visits
-FROM dannys_diner.sales
-GROUP BY customer_id;
+-- how many foreign keys only exist in the left table and not in the right?
+SELECT
+  COUNT(DISTINCT rental.inventory_id)
+FROM dvd_rentals.rental
+WHERE NOT EXISTS (
+  SELECT inventory_id
+  FROM dvd_rentals.inventory
+  WHERE rental.inventory_id = inventory.inventory_id
+);
+````
+![image](https://user-images.githubusercontent.com/104872221/184936110-c575c65a-26a0-4af6-8237-7cff499de9ba.png)
+
+
+Now check the right side table using the same process: dvd_rentals.inventory
+-- how many foreign keys only exist in the right table and not in the left?
+-- note the table reference changes
+````sql
+SELECT
+  COUNT(DISTINCT inventory.inventory_id)
+FROM dvd_rentals.inventory
+WHERE NOT EXISTS (
+  SELECT inventory_id
+  FROM dvd_rentals.rental
+  WHERE rental.inventory_id = inventory.inventory_id
+);
 ````
 
-![image](https://user-images.githubusercontent.com/104872221/170375304-0c206419-327a-4688-b421-8a15451f4a55.png)
+![image](https://user-images.githubusercontent.com/104872221/184937107-b1ad452c-6f06-4a9a-867f-05a439a514b6.png)
 
 
 
