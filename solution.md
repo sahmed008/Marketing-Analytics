@@ -144,6 +144,7 @@ Well - what do you know? Some films only consist of a single actor! Good thing w
 
 ![image](https://user-images.githubusercontent.com/104872221/184961108-5b20073b-736e-4cfa-9829-ecf2efca7b8c.png)
 
+In conclusion - we can see that there is indeed a many to many relationship of the film_id and the actor_id columns within the dvd_rentals.film_actor table so we must take extreme care when we are joining these 2 tables as part of our analysis in the next section of this project!
 
 
 
