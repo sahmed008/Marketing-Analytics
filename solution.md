@@ -147,6 +147,41 @@ Well - what do you know? Some films only consist of a single actor! Good thing w
 In conclusion - we can see that there is indeed a many to many relationship of the film_id and the actor_id columns within the dvd_rentals.film_actor table so we must take extreme care when we are joining these 2 tables as part of our analysis in the next section of this project!
 
 
+## Analysis
 
+Now that we’ve identified the key columns and highlighted some things we need to keep in mind when performing some table joins for our data analysis - we need to formalise our plan of attack.
+
+Before we dive into the actual SQL implementation of the final solution, let’s list out all of the steps we will take without any code so we can keep a track of our thought process as we go through the following SQL solution.
+
+At a high level - we will tackle the category insights first before turning our attention to the actor level insights and recommendations.
+
+### Solution Plan
+
+#### Category Insights
+
+1. Create a base dataset and join all relevant tables
+      * *complete_joint_dataset*
+2. Calculate customer rental counts for each category
+      * *category_counts*
+3. Aggregate all customer total films watched
+      * *total_counts*
+4. Identify the top 2 categories for each customer
+      * *top_categories*
+5. Calculate each category’s aggregated average rental count
+      * *average_category_count*
+6. Calculate the percentile metric for each customer’s top category film count
+      * *top_category_percentile*
+7. Generate our first top category insights table using all previously generated tables
+      * *top_category_insights*
+8. Generate the 2nd category insights
+      * *second_category_insights*
+
+#### Category Recommendations
+1. Generate a summarised film count table with the category included, we will use this table to rank the films by popularity
+      * *film_counts*
+2. Create a previously watched films for the top 2 categories to exclude for each customer
+      * *category_film_exclusions*
+3. Finally perform an anti join from the relevant category films on the exclusions and use window functions to keep the top 3 from each category by popularity - be sure to split out the recommendations by category ranking
+      * *category_recommendations*
 
 
