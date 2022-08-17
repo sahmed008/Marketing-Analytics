@@ -184,4 +184,82 @@ At a high level - we will tackle the category insights first before turning our 
 3. Finally perform an anti join from the relevant category films on the exclusions and use window functions to keep the top 3 from each category by popularity - be sure to split out the recommendations by category ranking
       * *category_recommendations*
 
+#### Actor Insights
+1. Create a new base dataset which has a focus on the actor instead of category
+      * actor_joint_table
+2. Identify the top actor and their respective rental count for each customer based off the ranked rental counts
+      * top_actor_counts
+#### Actor Recommendations
+1. Generate total actor rental counts to use for film popularity ranking in later steps
+      * actor_film_counts
+2. Create an updated film exclusions table which includes the previously watched films like we had for the category recommendations - but this time we need to also add in the films which were previously recommended
+      * actor_film_exclusions
+3. Apply the same ANTI JOIN technique and use a window function to identify the 3 valid film recommendations for our customers
+      * actor_recommendations
+
+#### Category Insights
+
+We first created a complete_joint_dataset which joins multiple tables together after analysing the relationships between each table to confirm if there was a one-to-many, many-to-one or a many-to-many relationship for each of the join columns.
+
+We also included the rental_date column to help us split ties for rankings which had the same count of rentals at a customer level - this helps us prioritise film categories which were more recently viewed.
+
+````sql
+DROP TABLE IF EXISTS complete_joint_dataset;
+CREATE TEMP TABLE complete_joint_dataset AS
+SELECT
+  rental.customer_id,
+  rental.rental_date,
+  inventory.film_id,
+  film.title,
+  category.name AS category_name
+FROM dvd_rentals.rental
+INNER JOIN dvd_rentals.inventory
+ON rental.inventory_id = inventory.inventory_id
+INNER JOIN dvd_rentals.film
+ON inventory.film_id = film.film_id
+INNER JOIN dvd_rentals.film_category
+ON film.film_id = film_category.film_id
+INNER JOIN dvd_rentals.category
+ON film_category.category_id = category.category_id;
+
+SELECT * FROM complete_joint_dataset
+LIMIT 10;
+
+````
+![image](https://user-images.githubusercontent.com/104872221/185016886-96f76539-65be-455a-9545-ad087aa3d02e.png)
+
+
+#### Category Counts
+We then created a follow-up table which uses the complete_joint_dataset to aggregate our data and generate a rental_count and the latest rental_date for our ranking purposes downstream.
+
+````sql
+DROP TABLE IF EXISTS category_counts;
+SELECT
+  customer_id,
+  category_name,
+  COUNT(*) AS rental_count,
+  MAX(rental_date) AS latest_rental_date
+FROM complete_joint_dataset
+GROUP BY 1,2
+````
+
+````SQL
+SELECT
+  *
+FROM category_counts
+WHERE customer_id = 1
+ORDER BY 
+  rental_count DESC,
+  latest_rental_date DESC;
+````
+
+![image](https://user-images.githubusercontent.com/104872221/185017340-80423167-0389-4d5b-9586-ae1eb2a3d587.png)
+
+
+
+
+
+
+
+
 
