@@ -256,9 +256,103 @@ ORDER BY
 ![image](https://user-images.githubusercontent.com/104872221/185017340-80423167-0389-4d5b-9586-ae1eb2a3d587.png)
 
 
+#### Total Counts
+We will then use this category_counts table to generate our total_counts table.
+
+````sql
+DROP TABLE IF EXISTS total_counts;
+CREATE TEMP TABLE total_counts AS 
+SELECT
+  customer_id,
+  SUM(rental_count) AS total_counts
+FROM category_counts
+GROUP BY customer_id;
+
+
+SELECT 
+  *
+FROM total_counts
+LIMIT 5;
+````
+
+![image](https://user-images.githubusercontent.com/104872221/185271062-dba8056e-4892-4f50-841c-260b7d7d8ee9.png)
+
+#### Top Categories
+We can also use a simple DENSE_RANK window function to generate a ranking of categories for each customer.
+
+We will also split arbitrary ties by preferencing the category which had the most recent latest_rental_date value we generated in the category_counts for this exact purpose. To further prevent any ties - we will also sort the category_name in alphabetical (ascending) order just in case!
+
+````SQL
+
+DROP TABLE IF EXISTS top_categories;
+CREATE TEMP TABLE top_categories AS 
+WITH ranked_cte AS (
+  SELECT 
+    customer_id,
+    category_name,
+    rental_count,
+    DENSE_RANK() OVER (
+      PARTITION BY customer_id
+      ORDER BY 
+        rental_count DESC,
+        latest_rental_date DESC,
+        category_name
+        ) AS category_rank
+  FROM category_counts
+)
+SELECT * FROM ranked_cte
+WHERE category_rank <= 2;
+
+
+  
+SELECT 
+  *
+FROM top_categories
+LIMIT 5;
+
+````
+
+![image](https://user-images.githubusercontent.com/104872221/185273536-417fedcc-e9de-4cd3-bf1a-7c1f4b5a240e.png)
+
+#### Average Category Count
+
+Next we will need to use the category_counts table to generate the average aggregated rental count for each category rounded down to the nearest integer using the FLOOR function.
+
+
+````SQL
+DROP TABLE IF EXISTS average_category_count;
+CREATE TEMP TABLE average_category_count AS 
+SELECT
+  category_name,
+  FLOOR(AVG(rental_count)) AS avg_rental_count
+FROM category_counts
+GROUP BY category_name;
+
+````
 
 
 
+<details>
+<summary>
+Click here to see sample rows from average_category_count
+</summary>
+
+  
+````SQL
+SELECT *
+FROM average_category_count
+ORDER BY
+category_average DESC,
+category_name;
+````
+![image](https://user-images.githubusercontent.com/104872221/185275110-2630a00b-8eb5-49c5-96ef-880abc3a24ea.png)
+</details>
+
+
+#### Top Category Percentile
+Now we need to compare each customer’s top category rental_count to all other DVD Rental Co customers - we do this using a combination of a LEFT JOIN and a PERCENT_RANK window function ordered by descending rental count to show the required top N% customer insight.
+
+We will also use a CASE WHEN to replace a 0 ranking value to 1 as it doesn’t make sense for the customer to be in the Top 0%!
 
 
 
