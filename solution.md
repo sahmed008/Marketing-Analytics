@@ -354,6 +354,92 @@ Now we need to compare each customer’s top category rental_count to all other 
 
 We will also use a CASE WHEN to replace a 0 ranking value to 1 as it doesn’t make sense for the customer to be in the Top 0%!
 
+````sql
+DROP TABLE IF EXISTS top_category_percentile;
+CREATE TEMP TABLE top_category_percentile AS 
+WITH calculated_cte AS (
+SELECT
+  top_categories.customer_id,
+  top_categories.category_name AS top_category_name,
+  top_categories.rental_count,
+  category_counts.category_name,
+  top_categories.category_rank,
+  PERCENT_RANK() OVER (
+    PARTITION BY category_counts.category_name
+    ORDER BY category_counts.rental_count DESC) AS raw_percentile_value
+FROM category_counts
+LEFT JOIN top_categories
+ON top_categories.customer_id = category_counts.customer_id
+)
+SELECT
+  customer_id,
+  category_name,
+  rental_count,
+  category_rank,
+  CASE
+    WHEN ROUND(100 * raw_percentile_value) = 0 THEN 1
+    ELSE ROUND(100 * raw_percentile_value)
+  END AS percentile
+FROM calculated_cte
+WHERE
+  category_rank = 1
+  AND top_category_name = category_name;
+````
+
+<details>
+<summary>
+Click here to see sample rows from average_category_count
+</summary>
+  
+  
+  
+````sql
+ SELECT *
+FROM top_category_percentile
+LIMIT 10;
+````
+ 
+![image](https://user-images.githubusercontent.com/104872221/185435721-bfedd85f-07e0-413a-a4dc-4c8d0aafc941.png)
+
+</details>
+
+
+#### 1st Category Insights
+
+Let’s now compile all of our previous temporary tables into a single category_insights table with what we have so far - we will use our most recently generated top_category_percentile table as the base and LEFT JOIN our average table to generate an average_comparison column.
+
+````sql
+DROP TABLE IF EXISTS first_category_insights;
+CREATE TEMP TABLE first_category_insights AS
+SELECT
+  base.customer_id,
+  base.category_name,
+  base.rental_count,
+  base.rental_count - average.category_average AS average_comparison,
+  base.percentile
+FROM top_category_percentile AS base
+LEFT JOIN average_category_count AS average
+  ON base.category_name = average.category_name;
+````
+<details>
+<summary>
+Click here to see sample rows from first_category_insights
+</summary>
+
+````sql
+SELECT *
+FROM first_category_insights
+LIMIT 10;
+````
+  
+![image](https://user-images.githubusercontent.com/104872221/185525088-490f6ce1-196d-4fdb-83c1-f466d6e1ca08.png)
+
+<details>
+
+
+
+
+
 
 
 
