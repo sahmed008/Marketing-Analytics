@@ -434,12 +434,40 @@ LIMIT 10;
   
 ![image](https://user-images.githubusercontent.com/104872221/185525088-490f6ce1-196d-4fdb-83c1-f466d6e1ca08.png)
 
+</summary>
+
+  
+#### 2nd Category Insights
+Our second ranked category insight is pretty simple as we only need our top_categories table and the total_counts table to process our insights.
+The only thing to note here is that we’ll need to cast one of our fraction components of our total_percentage column to avoid the dreaded integer floor division!
+
+````sql
+DROP TABLE IF EXISTS second_category_insights;
+CREATE TEMP TABLE second_category_insights AS
+SELECT
+  top_categories.customer_id,
+  top_categories.category_name,
+  top_categories.rental_count,
+  -- need to cast as NUMERIC to avoid INTEGER floor division!
+  ROUND(
+    100 * top_categories.rental_count::NUMERIC / total_counts.total_count
+  ) AS total_percentage
+FROM top_categories
+LEFT JOIN total_counts
+  ON top_categories.customer_id = total_counts.customer_id
+WHERE category_rank = 2;
+````
+
 <details>
+<summary>
+Click here to see sample rows from second_category_insights
+</summary>
 
-
-
-
-
-
-
-
+ ````sql
+  SELECT *
+FROM second_category_insights
+LIMIT 10;
+````
+![image](https://user-images.githubusercontent.com/104872221/185528270-daa3a5e0-37f7-4d98-9bb3-4ae7835645f2.png)
+  
+</summary>
