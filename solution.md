@@ -434,7 +434,8 @@ LIMIT 10;
   
 ![image](https://user-images.githubusercontent.com/104872221/185525088-490f6ce1-196d-4fdb-83c1-f466d6e1ca08.png)
 
-</summary>
+
+</details>
 
   
 #### 2nd Category Insights
