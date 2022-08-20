@@ -471,7 +471,7 @@ LIMIT 10;
 ````
 ![image](https://user-images.githubusercontent.com/104872221/185528270-daa3a5e0-37f7-4d98-9bb3-4ae7835645f2.png)
   
-</summary>
+</details>
 
 
 #### Category Recommendations
@@ -508,7 +508,11 @@ LIMIT 10;
 
 ![image](https://user-images.githubusercontent.com/104872221/185724300-b4617aa1-3f5e-4c28-bad6-98258437ae97.png)
 
-</summary>
+
+</details>
+
+
+
 
 #### Category Film Exclusions
 For the next step in our recommendation analysis - we will need to generate a table with all of our customer’s previously watched films so we don’t recommend them something which they’ve already seen before.
@@ -536,4 +540,17 @@ Click here to see sample rows from category_film_exclusions
 
 ![image](https://user-images.githubusercontent.com/104872221/185724688-69dde47d-3f98-45ac-96f4-04b8a79772ca.png)
   
-</summary>
+  
+</details>
+
+
+#### Final Category Recommendations
+Finally we have arrived at the final point of our category recommendations analysis where we need to perform an ANTI JOIN on our category_film_exclusions table using a WHERE NOT EXISTS SQL implementation for our top 2 categories found in the top_categories table we generated a few steps prior.
+
+After this exclusion - we will then perform a window function to select the top 3 films for each of the top 2 categories per customer. To avoid random ties - we will sort by the title alphabetically in case the rental_count values are equal in the ORDER BY clause for our window function.
+
+We also need to keep our category_rank column in our final output so we can easily identify our recommendations for each customer’s preferred categories.
+
+This ANTI JOIN is likely to be the most complex and challenging piece to understand in this entire analysis - please do not go past this point until you understand what is going on!
+
+
