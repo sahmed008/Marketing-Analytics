@@ -553,4 +553,62 @@ We also need to keep our category_rank column in our final output so we can easi
 
 This ANTI JOIN is likely to be the most complex and challenging piece to understand in this entire analysis - please do not go past this point until you understand what is going on!
 
+````sql
+DROP TABLE IF EXISTS category_recommendations;
+CREATE TEMP TABLE category_recommendations AS
+WITH ranked_films_cte AS (
+  SELECT
+    top_categories.customer_id,
+    top_categories.category_name,
+    top_categories.category_rank,
+    -- why do we keep this `film_id` column you might ask?
+    -- you will find out later on during the actor level recommendations!
+    film_counts.film_id,
+    film_counts.title,
+    film_counts.rental_count,
+    DENSE_RANK() OVER (
+      PARTITION BY
+        top_categories.customer_id,
+        top_categories.category_rank
+      ORDER BY
+        film_counts.rental_count DESC,
+        film_counts.title
+    ) AS reco_rank
+  FROM top_categories
+  INNER JOIN film_counts
+    ON top_categories.category_name = film_counts.category_name
+  -- This is a tricky anti-join where we need to "join" on 2 different tables!
+  WHERE NOT EXISTS (
+    SELECT 1
+    FROM category_film_exclusions
+    WHERE
+      category_film_exclusions.customer_id = top_categories.customer_id AND
+      category_film_exclusions.film_id = film_counts.film_id
+  )
+)
+SELECT * FROM ranked_films_cte
+WHERE reco_rank <= 3;
+````
 
+
+<details>
+<summary>
+Click here to see sample rows from category_recommendations
+</summary>
+
+
+
+
+````sql
+SELECT *
+FROM category_recommendations
+WHERE customer_id = 1
+ORDER BY category_rank, reco_rank;
+```` 
+  
+![image](https://user-images.githubusercontent.com/104872221/185752498-3249fa31-43cb-4bb2-811f-cb9501fc8f49.png)
+  
+  
+</details>  
+  
+  
