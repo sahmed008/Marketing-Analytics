@@ -612,3 +612,75 @@ ORDER BY category_rank, reco_rank;
 </details>  
   
   
+#### Actor Insights
+#### Actor Joint Table
+
+For this entire analysis on actors - we will need to create a new base table as we will need to introduce the dvd_rentals.film_actor and dvd_rentals.actor tables to extract all the required data points we need for the final output.
+
+We should also check that the combination of rows in our final table is expected because we should see many more rows than previously used in our categories insights as there is a many-to-many relationship between film_id and actor_id as we alluded to earlier in our data exploration section of this case study.
+
+We also included the rental_date column in this table so we can use it in case there are any ties - just like our previous analysis for the top categories piece.
+
+````sql
+-- Actor Insights and Recommendations
+DROP TABLE IF EXISTS actor_joint_dataset;
+CREATE TEMP TABLE actor_joint_dataset AS
+SELECT
+  rental.customer_id,
+  rental.rental_id,
+  rental.rental_date,
+  film.film_id,
+  film.title,
+  actor.actor_id,
+  actor.first_name,
+  actor.last_name
+FROM dvd_rentals.rental
+INNER JOIN dvd_rentals.inventory
+  ON rental.inventory_id = inventory.inventory_id
+INNER JOIN dvd_rentals.film
+  ON inventory.film_id = film.film_id
+-- different to our previous base table as we know use actor tables
+INNER JOIN dvd_rentals.film_actor
+  ON film.film_id = film_actor.film_id
+INNER JOIN dvd_rentals.actor
+  ON film_actor.actor_id = actor.actor_id;
+````
+
+<details>
+<summary>
+Click here to see sample rows and counts from actor_joint_dataset
+</summary>
+
+
+````sql
+-- show the counts and count distinct of a few important columns
+SELECT
+  COUNT(*) AS total_row_count,
+  COUNT(DISTINCT rental_id) AS unique_rental_id,
+  COUNT(DISTINCT film_id) AS unique_film_id,
+  COUNT(DISTINCT actor_id) AS unique_actor_id,
+  COUNT(DISTINCT customer_id) AS unique_customer_id
+FROM actor_joint_dataset;
+````
+  
+
+  
+![image](https://user-images.githubusercontent.com/104872221/185759245-8b3d6194-83e2-4ffe-8f56-92d616e63e50.png)
+
+</details>  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
