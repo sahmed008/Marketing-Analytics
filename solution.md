@@ -472,3 +472,41 @@ LIMIT 10;
 ![image](https://user-images.githubusercontent.com/104872221/185528270-daa3a5e0-37f7-4d98-9bb3-4ae7835645f2.png)
   
 </summary>
+
+
+#### Category Recommendations
+#### Film Counts
+We wil first generate another total rental count aggregation from our base table complete_joint_dataset - however this time we will use the film_id and title instead of the category - we still need to keep the category_name in our aggregation - so we will need to use a window function instead of a group by to perform this step.
+
+The DISTINCT is really important for this query - if we were to omit it we would end up with duplicates in our table, which is definitely not what we want!
+
+````sql
+DROP TABLE IF EXISTS film_counts;
+CREATE TEMP TABLE film_counts AS
+SELECT DISTINCT
+  film_id,
+  title,
+  category_name,
+  COUNT(*) OVER (
+    PARTITION BY film_id
+  ) AS rental_count
+FROM complete_joint_dataset;
+````
+
+<details>
+<summary>
+Click here to see sample rows from film_counts
+</summary>
+
+````sql
+  SELECT *
+FROM film_counts
+ORDER BY rental_count DESC
+LIMIT 10;
+  
+````
+
+![image](https://user-images.githubusercontent.com/104872221/185724300-b4617aa1-3f5e-4c28-bad6-98258437ae97.png)
+
+</summary>
+
