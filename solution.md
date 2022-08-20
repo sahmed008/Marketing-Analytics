@@ -510,3 +510,30 @@ LIMIT 10;
 
 </summary>
 
+#### Category Film Exclusions
+For the next step in our recommendation analysis - we will need to generate a table with all of our customer’s previously watched films so we don’t recommend them something which they’ve already seen before.
+
+We will use the complete_joint_dataset base table to get this information - it is pretty straightforward, the only thing to keep in mind is how we will perform an ANTI JOIN with our previous film_counts table so we need to also keep the same film_id column to use as our join column.
+
+We also want to make sure that the DISTINCT is also applied for this table too - it is not as important as in our last step, but it would be best practice to apply it here also!
+
+Note: we could also keep the title and category_name columns but they are redundant and we want to minimise the amount of data we need to use!
+
+````sql
+DROP TABLE IF EXISTS category_film_exclusions;
+CREATE TEMP TABLE category_film_exclusions AS
+SELECT DISTINCT
+  customer_id,
+  film_id
+FROM complete_joint_dataset;
+````
+
+<details>
+<summary>
+Click here to see sample rows from category_film_exclusions
+</summary>
+
+
+![image](https://user-images.githubusercontent.com/104872221/185724688-69dde47d-3f98-45ac-96f4-04b8a79772ca.png)
+  
+</summary>
