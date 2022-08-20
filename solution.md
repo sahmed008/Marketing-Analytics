@@ -666,6 +666,18 @@ FROM actor_joint_dataset;
 
   
 ![image](https://user-images.githubusercontent.com/104872221/185759245-8b3d6194-83e2-4ffe-8f56-92d616e63e50.png)
+  
+ 
+````sql
+-- show the first 10 rows
+SELECT *
+FROM actor_joint_dataset
+LIMIT 10;
+````
+  
+![image](https://user-images.githubusercontent.com/104872221/185759304-5ed6cd60-edfe-4f66-b355-fe255aff44cb.png)
+
+  
 
 </details>  
   
